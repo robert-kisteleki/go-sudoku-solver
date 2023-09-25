@@ -5,10 +5,10 @@ import (
 )
 
 // Test complexity 1(a)
-func TestSolverLevel1a(t *testing.T) {
-
+func TestSolverLevel1(t *testing.T) {
 	in := new(Sudoku)
-	err := in.Load(`
+
+	err := in.LoadString(`
 +---+---+---+
 |123|456|78X|
 |   |   |   |
@@ -46,12 +46,8 @@ func TestSolverLevel1a(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 1a:\n%s", s)
 	}
-}
 
-func TestSolverLevel1b(t *testing.T) {
-
-	in := new(Sudoku)
-	err := in.Load(`
+	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
 |2  |   |   |
@@ -71,7 +67,7 @@ func TestSolverLevel1b(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |1  |   |   |
@@ -89,12 +85,8 @@ func TestSolverLevel1b(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 1b:\n%s", s)
 	}
-}
 
-func TestSolverLevel1c(t *testing.T) {
-
-	in := new(Sudoku)
-	err := in.Load(`
+	err = in.LoadString(`
 +---+---+---+
 |123|   |   |
 |456|   |   |
@@ -114,7 +106,7 @@ func TestSolverLevel1c(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |123|   |   |
@@ -134,10 +126,10 @@ func TestSolverLevel1c(t *testing.T) {
 	}
 }
 
-func TestSolverLevel2a(t *testing.T) {
-
+func TestSolverLevel2(t *testing.T) {
 	in := new(Sudoku)
-	err := in.Load(`
+
+	err := in.LoadString(`
 +---+---+---+
 |1  |   |   |
 |   |1  |   |
@@ -175,12 +167,8 @@ func TestSolverLevel2a(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 2a:\n%s", s)
 	}
-}
 
-func TestSolverLevel2b(t *testing.T) {
-
-	in := new(Sudoku)
-	err := in.Load(`
+	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
 |   |1  |   |
@@ -200,7 +188,7 @@ func TestSolverLevel2b(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |1  |   |   |
@@ -218,12 +206,8 @@ func TestSolverLevel2b(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 2b:\n%s", s)
 	}
-}
 
-func TestSolverLevel2c1(t *testing.T) {
-
-	in := new(Sudoku)
-	err := in.Load(`
+	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
 |   |   |456|
@@ -243,7 +227,7 @@ func TestSolverLevel2c1(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |1  |   |   |
@@ -261,12 +245,8 @@ func TestSolverLevel2c1(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 2c1:\n%s", s)
 	}
-}
 
-func TestSolverLevel2c2(t *testing.T) {
-
-	in := new(Sudoku)
-	err := in.Load(`
+	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
 |   |   |   |
@@ -286,7 +266,7 @@ func TestSolverLevel2c2(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |1  |   |   |
