@@ -220,7 +220,7 @@ func TestSolverLevel2b(t *testing.T) {
 	}
 }
 
-func TestSolverLevel2c(t *testing.T) {
+func TestSolverLevel2c1(t *testing.T) {
 
 	in := new(Sudoku)
 	err := in.Load(`
@@ -259,6 +259,49 @@ func TestSolverLevel2c(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2c:\n%s", s)
+		t.Fatalf("incorrect soution for case 2c1:\n%s", s)
+	}
+}
+
+func TestSolverLevel2c2(t *testing.T) {
+
+	in := new(Sudoku)
+	err := in.Load(`
++---+---+---+
+|1  |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+| 42|   |   |
+| 53|   |   |
+| 6X|   |   |
++---+---+---+
+`)
+	if err != nil {
+		panic(err)
+	}
+	_ = in.Solve()
+
+	s := "\n" + in.String()
+	if s != `
++---+---+---+
+|1  |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+| 42|   |   |
+| 53|   |   |
+| 61|   |   |
++---+---+---+
+` {
+		t.Fatalf("incorrect soution for case 2c2:\n%s", s)
 	}
 }
