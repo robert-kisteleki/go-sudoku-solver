@@ -130,7 +130,7 @@ func (s *Sudoku) missingTotal() int {
 	n := 0
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
-			if s.matrix[i][j] == 0 {
+			if !s.isFilled(i, j) {
 				n++
 			}
 		}
@@ -193,27 +193,27 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					r1 := 3*(r/3) + (r+1)%3 // first other row
 					r2 := 3*(r/3) + (r+2)%3 // second other row
 					c1 := 3*(c/3) + (c+1)%3 // first other column
-					c2 := 3*(c/3) + (c+2)%3 // second other row
+					c2 := 3*(c/3) + (c+2)%3 // second other column
 
 					r1has := s.hasAlready(Row, r1, v)
 					r2has := s.hasAlready(Row, r2, v)
 					c1has := s.hasAlready(Col, c1, v)
 					c2has := s.hasAlready(Col, c2, v)
 
-					// check if *other* rows/cols in the same row/col group have this v
+					// check if *all other* rows/cols in the same row/col group have this v
 					// if yes for all => fill it in!
 					if r1has && r2has && c1has && c2has {
 						s.matrix[r][c] = v
 						return true, r, c, v, "2a"
 					}
 
-					// check if *other* rows/cols in the same row/col group have this v
+					// check if *all other* rows/cols in the same row/col group have this v
 					// also, if *other* rows/cols cannot have it because in this block they are filled
 					// if yes for all => fill it in!
-					if (r1has || (s.matrix[r1][c] != 0 && s.matrix[r2][c] != 0)) &&
-						(r2has || (s.matrix[r1][c] != 0 && s.matrix[r2][c] != 0)) &&
-						(c1has || (s.matrix[r][c1] != 0 && s.matrix[r][c2] != 0)) &&
-						(c2has || (s.matrix[r][c1] != 0 && s.matrix[r][c2] != 0)) {
+					if (r1has || (s.isFilled(r1, c) && s.isFilled(r2, c))) &&
+						(r2has || (s.isFilled(r1, c) && s.isFilled(r2, c))) &&
+						(c1has || (s.isFilled(r, c1) && s.isFilled(r, c2))) &&
+						(c2has || (s.isFilled(r, c1) && s.isFilled(r, c2))) {
 						s.matrix[r][c] = v
 						return true, r, c, v, "2b"
 					}
@@ -222,17 +222,71 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					// also, if *other* rows/cols cannot have it because in this block they are filled
 					// also, ignore already filled rows/cols
 					// if yes for all => fill it in!
-					if (r1has || (s.matrix[r1][c] != 0 && s.matrix[r1][c1] != 0 && s.matrix[r1][c2] != 0)) &&
-						(r2has || (s.matrix[r2][c] != 0 && s.matrix[r2][c1] != 0 && s.matrix[r2][c2] != 0)) &&
-						s.matrix[r][c1] != 0 && s.matrix[r][c2] != 0 {
+					if (r1has || (s.isFilled(r1, c) && s.isFilled(r1, c1) && s.isFilled(r1, c2))) &&
+						(r2has || (s.isFilled(r2, c) && s.isFilled(r2, c1) && s.isFilled(r2, c2))) &&
+						s.isFilled(r, c1) && s.isFilled(r, c2) {
 						s.matrix[r][c] = v
 						return true, r, c, v, "2c1"
 					}
-					if (c1has || (s.matrix[r][c1] != 0 && s.matrix[r1][c1] != 0 && s.matrix[r2][c1] != 0)) &&
-						(c2has || (s.matrix[r][c2] != 0 && s.matrix[r1][c2] != 0 && s.matrix[r2][c2] != 0)) &&
-						s.matrix[r1][c] != 0 && s.matrix[r2][c] != 0 {
+					if (c1has || (s.isFilled(r, c1) && s.isFilled(r1, c1) && s.isFilled(r2, c1))) &&
+						(c2has || (s.isFilled(r, c2) && s.isFilled(r1, c2) && s.isFilled(r2, c2))) &&
+						s.isFilled(r1, c) && s.isFilled(r2, c) {
 						s.matrix[r][c] = v
 						return true, r, c, v, "2c2"
+					}
+
+					// are there any other cells in this row where v could be?
+					otherCs := false
+					for i := 0; i < 9; i++ {
+						if i == c {
+							// same cell, skip
+							continue
+						}
+						if s.isFilled(r, i) {
+							continue
+						}
+						if s.hasAlready(Block, translateRCToBlock(r, i), v) {
+							// if the block already has this v
+							continue
+						}
+						if s.hasAlready(Col, i, v) {
+							// some other row in this col has this v already
+							continue
+						}
+						otherCs = true
+						break
+					}
+					if !otherCs {
+						// this v cannot be in any other columns
+						s.matrix[r][c] = v
+						return true, r, c, v, "2dc"
+					}
+
+					// are there any other cells in this col where v could be?
+					otherRs := false
+					for i := 0; i < 9; i++ {
+						if i == r {
+							// same cell, skip
+							continue
+						}
+						if s.isFilled(i, c) {
+							continue
+						}
+						if s.hasAlready(Block, translateRCToBlock(i, c), v) {
+							// if the block already has this v
+							continue
+						}
+						if s.hasAlready(Row, i, v) {
+							// some other col in this row has this v already
+							continue
+						}
+						otherRs = true
+						break
+					}
+					if !otherRs {
+						// this v cannot be in any other rows
+						s.matrix[r][c] = v
+						return true, r, c, v, "2dr"
 					}
 				}
 			}
@@ -249,6 +303,10 @@ func (s *Sudoku) hasAlready(dim dimension, where int, val int) bool {
 		}
 	}
 	return false
+}
+
+func (s *Sudoku) isFilled(r, c int) bool {
+	return s.matrix[r][c] != 0
 }
 
 func (s *Sudoku) setComplexity(complexity int) {
