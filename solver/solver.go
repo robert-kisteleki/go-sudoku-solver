@@ -45,6 +45,15 @@ func (s *Sudoku) Solve() bool {
 			}
 			continue
 		}
+
+		if success, r, c, val, strat := s.findLevel3(); success {
+			s.setComplexity(3)
+			if s.callback != nil {
+				s.callback(s, step, r, c, val, strat)
+			}
+			continue
+		}
+
 		return false
 	}
 	return true
@@ -234,6 +243,23 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 						s.matrix[r][c] = v
 						return true, r, c, v, "2c2"
 					}
+				}
+			}
+		}
+	}
+	return false, 9, 9, 9, ""
+}
+
+func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string) {
+	// try to put v in all the free positions
+	for v := 1; v <= 9; v++ {
+		// OPT: if v already has 9 instances, skip it
+		for r := 0; r < 9; r++ {
+			for c := 0; c < 9; c++ {
+				if s.matrix[r][c] == 0 &&
+					!s.hasAlready(Row, r, v) &&
+					!s.hasAlready(Col, c, v) &&
+					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
 
 					// are there any other cells in this row where v could be?
 					otherCs := false
@@ -259,7 +285,7 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					if !otherCs {
 						// this v cannot be in any other columns
 						s.matrix[r][c] = v
-						return true, r, c, v, "2dc"
+						return true, r, c, v, "3c"
 					}
 
 					// are there any other cells in this col where v could be?
@@ -286,7 +312,7 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					if !otherRs {
 						// this v cannot be in any other rows
 						s.matrix[r][c] = v
-						return true, r, c, v, "2dr"
+						return true, r, c, v, "3r"
 					}
 				}
 			}
