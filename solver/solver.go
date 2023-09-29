@@ -46,14 +46,6 @@ func (s *Sudoku) Solve() bool {
 			continue
 		}
 
-		if success, r, c, val, strat := s.findLevel3(); success {
-			s.setComplexity(3)
-			if s.callback != nil {
-				s.callback(s, step, r, c, val, strat)
-			}
-			continue
-		}
-
 		return false
 	}
 	return true
@@ -243,44 +235,17 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 						s.matrix[r][c] = v
 						return true, r, c, v, "2c2"
 					}
-				}
-			}
-		}
-	}
-	return false, 9, 9, 9, ""
-}
-
-func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string) {
-	// try to put v in all the free positions
-	for v := 1; v <= 9; v++ {
-		// OPT: if v already has 9 instances, skip it
-		for r := 0; r < 9; r++ {
-			for c := 0; c < 9; c++ {
-				if s.matrix[r][c] == 0 &&
-					!s.hasAlready(Row, r, v) &&
-					!s.hasAlready(Col, c, v) &&
-					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
 
 					// are there any other cells in this row where v could be?
 					otherCs := false
-					for i := 0; i < 9; i++ {
-						if i == c {
-							// same cell, skip
-							continue
-						}
-						if s.isFilled(r, i) {
-							continue
-						}
-						if s.hasAlready(Block, translateRCToBlock(r, i), v) {
-							// if the block already has this v
-							continue
-						}
-						if s.hasAlready(Col, i, v) {
-							// some other row in this col has this v already
+					for i := 0; i < 9 && !otherCs; i++ {
+						if i == c || // same cell, skip
+							s.isFilled(r, i) || // cell is filled already
+							s.hasAlready(Block, translateRCToBlock(r, i), v) || // if the block already has this v
+							s.hasAlready(Col, i, v) { // some other row in this col has this v already
 							continue
 						}
 						otherCs = true
-						break
 					}
 					if !otherCs {
 						// this v cannot be in any other columns
@@ -290,24 +255,14 @@ func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string
 
 					// are there any other cells in this col where v could be?
 					otherRs := false
-					for i := 0; i < 9; i++ {
-						if i == r {
-							// same cell, skip
-							continue
-						}
-						if s.isFilled(i, c) {
-							continue
-						}
-						if s.hasAlready(Block, translateRCToBlock(i, c), v) {
-							// if the block already has this v
-							continue
-						}
-						if s.hasAlready(Row, i, v) {
-							// some other col in this row has this v already
+					for i := 0; i < 9 && !otherRs; i++ {
+						if i == r || //  same cell, skip
+							s.isFilled(i, c) || // cell is filled already
+							s.hasAlready(Block, translateRCToBlock(i, c), v) || // if the block already has this v
+							s.hasAlready(Row, i, v) { // some other col in this row has this v already
 							continue
 						}
 						otherRs = true
-						break
 					}
 					if !otherRs {
 						// this v cannot be in any other rows
