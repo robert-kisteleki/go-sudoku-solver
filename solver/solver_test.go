@@ -284,12 +284,8 @@ func TestSolverLevel2(t *testing.T) {
 ` {
 		t.Fatalf("incorrect soution for case 2c2:\n%s", s)
 	}
-}
 
-func TestSolverLevel3(t *testing.T) {
-	in := new(Sudoku)
-
-	err := in.LoadString(`
+	err = in.LoadString(`
 +---+---+---+
 |   |   |   |
 |   |   |   |
@@ -309,7 +305,7 @@ func TestSolverLevel3(t *testing.T) {
 	}
 	_ = in.Solve()
 
-	s := "\n" + in.String()
+	s = "\n" + in.String()
 	if s != `
 +---+---+---+
 |   |   |   |
