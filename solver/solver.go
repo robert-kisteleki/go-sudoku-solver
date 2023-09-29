@@ -250,7 +250,7 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					if !otherCs {
 						// this v cannot be in any other columns
 						s.matrix[r][c] = v
-						return true, r, c, v, "3c"
+						return true, r, c, v, "2dc"
 					}
 
 					// are there any other cells in this col where v could be?
@@ -267,7 +267,7 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					if !otherRs {
 						// this v cannot be in any other rows
 						s.matrix[r][c] = v
-						return true, r, c, v, "3r"
+						return true, r, c, v, "2dr"
 					}
 				}
 			}
