@@ -109,7 +109,8 @@ func (s *Sudoku) LoadString(input string) (err error) {
 		lineno++
 		i++
 	}
-	return nil
+
+	return s.isSane()
 }
 
 func (s *Sudoku) LoadFile(readFile *os.File) (err error) {
@@ -122,7 +123,60 @@ func (s *Sudoku) LoadFile(readFile *os.File) (err error) {
 	}
 	readFile.Close()
 
-	s.LoadString(in)
+	return s.LoadString(in)
+}
+
+func (s *Sudoku) isSane() (err error) {
+	// check if values are [0..9]
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			if s.matrix[r][c] < 0 || s.matrix[r][c] > 9 {
+				return fmt.Errorf("invalid input at R:%d C:%d V:%d", r, c, s.matrix[r][c])
+			}
+		}
+	}
+
+	// check how many [1..0] we have per R/C/B
+	for r := 0; r < 9; r++ {
+		for v := 1; v <= 9; v++ {
+			n := 0
+			for c := 0; c < 9; c++ {
+				if s.matrix[r][c] == v {
+					n++
+				}
+			}
+			if n > 1 {
+				return fmt.Errorf("row %d contains %d appearances of %d", r+1, n, v)
+			}
+		}
+	}
+	for c := 0; c < 9; c++ {
+		for v := 1; v <= 9; v++ {
+			n := 0
+			for r := 0; r < 9; r++ {
+				if s.matrix[r][c] == v {
+					n++
+				}
+			}
+			if n > 1 {
+				return fmt.Errorf("col %d contains %d appearances of %d", c+1, n, v)
+			}
+		}
+	}
+	for b := 0; b < 9; b++ {
+		for v := 1; v <= 9; v++ {
+			n := 0
+			for i := 0; i < 9; i++ {
+				r, c := translateIndextoRC(Block, b, i)
+				if s.matrix[r][c] == v {
+					n++
+				}
+			}
+			if n > 1 {
+				return fmt.Errorf("block %d contains %d appearances of %d", b+1, n, v)
+			}
+		}
+	}
 
 	return nil
 }

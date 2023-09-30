@@ -7,7 +7,7 @@ The package part (`solver/`) may be usable separately as well.
 
 # Use
 
-The complied program expects a 9x9 table in input, like:
+The compiled program expects a 9x9 table in input, like:
 
 ```
 760000015
@@ -45,8 +45,5 @@ Solve by using:
 sudoku < solvethis.txt
 ```
 
-The input can contain prtty-printed sudokus, or ones where missing cells
+The input can contain pretty-printed sudokus, or ones where missing cells
 are marked with X or 0 or spaces. There should be 9 lines of useful stuff.
-
-At the moment there's no check if the input was a valid (unfilled) sudoku,
-so don't feed it garbage / invalid puzzles just yet!

@@ -11,7 +11,8 @@ func main() {
 
 	err := in.LoadFile(os.Stdin)
 	if err != nil {
-		panic(err)
+		fmt.Println("error:", err)
+		return
 	}
 
 	fmt.Println("Input:")
@@ -21,7 +22,6 @@ func main() {
 	if !in.Solve() {
 		fmt.Println("unsolvable!")
 	}
-	fmt.Println(in)
 }
 
 func progress(s *solver.Sudoku, step int, r int, c int, val int, strat string) {

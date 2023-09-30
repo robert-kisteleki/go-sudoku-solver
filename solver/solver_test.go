@@ -402,3 +402,64 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect soution for case 2d3:\n%s", s)
 	}
 }
+
+func TestInputSanity(t *testing.T) {
+	in := new(Sudoku)
+
+	err := in.LoadString(`
++---+---+---+
+|1  |   |  1|
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+`)
+	if err == nil {
+		t.Fatalf("duplicate values are accepted on input (row)")
+	}
+
+	err = in.LoadString(`
++---+---+---+
+|1  |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|1  |   |   |
++---+---+---+
+`)
+	if err == nil {
+		t.Fatalf("duplicate values are accepted on input (col)")
+	}
+
+	err = in.LoadString(`
++---+---+---+
+|1  |   |   |
+|   |   |   |
+|  1|   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+`)
+	if err == nil {
+		t.Fatalf("duplicate values are accepted on input (block)")
+	}
+}
