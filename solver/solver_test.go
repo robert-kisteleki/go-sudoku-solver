@@ -26,7 +26,7 @@ func TestSolverLevel1(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s := "\n" + in.String()
 	if s != `
@@ -65,7 +65,7 @@ func TestSolverLevel1(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -104,7 +104,7 @@ func TestSolverLevel1(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -147,7 +147,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s := "\n" + in.String()
 	if s != `
@@ -186,7 +186,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -225,7 +225,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -264,7 +264,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -303,7 +303,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -342,7 +342,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `
@@ -381,7 +381,7 @@ func TestSolverLevel2(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	_ = in.Solve()
+	_ = in.Solve(1)
 
 	s = "\n" + in.String()
 	if s != `

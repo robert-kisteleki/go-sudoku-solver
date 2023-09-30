@@ -24,10 +24,12 @@ const (
 	Block dimension = 2
 )
 
+// Solve check if the sudoku is solvable
+// level restricts he complexity tried
 // @return: is it solved?
-func (s *Sudoku) Solve() (err error) {
+func (s *Sudoku) Solve(maxteps int) (err error) {
 	step := 0
-	for !s.isDone() {
+	for !s.isDone() && (maxteps <= 0 || step < maxteps) {
 		step++
 
 		if success, r, c, val, strat := s.findLevel1(); success {
@@ -52,8 +54,20 @@ func (s *Sudoku) Solve() (err error) {
 			continue
 		}
 
-		return fmt.Errorf("not solveable")
+		if success, r, c, val, strat := s.findLevel3(); success {
+			s.setComplexity(3)
+			if s.callback != nil {
+				s.callback(s, step, r, c, val, strat)
+			}
+			if err := s.isSane(); err != nil {
+				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
+			}
+			continue
+		}
+
+		return fmt.Errorf("not solvable")
 	}
+
 	return nil
 }
 
@@ -121,14 +135,8 @@ func (s *Sudoku) LoadString(input string) (err error) {
 
 // LoadArray initialises from another [][]int matrix
 // input should be (at least) 9x9
-func (s *Sudoku) LoadArray(input [][]int) (err error) {
-	if len(input) < 9 {
-		return fmt.Errorf("not enough rows (%d)", len(input))
-	}
+func (s *Sudoku) LoadArray(input [9][9]int) (err error) {
 	for r := 0; r < 9; r++ {
-		if len(input[r]) < 9 {
-			return fmt.Errorf("not enough cols (%d) in row %d", len(input[r]), r)
-		}
 		for c := 0; c < 9; c++ {
 			s.matrix[r][c] = input[r][c]
 		}
@@ -346,6 +354,31 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 						s.matrix[r][c] = v
 						return true, r, c, v, "2dr"
 					}
+				}
+			}
+		}
+	}
+	return false, 9, 9, 9, ""
+}
+
+// recursive: try to fill all values in all places, see of that is sane & solvable
+func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string) {
+	for v := 1; v <= 9; v++ {
+		// opt: if all 9 v are found, skip this
+		for r := 0; r < 9; r++ {
+			for c := 0; c < 9; c++ {
+				if !s.isFilled(r, c) {
+					// assume matrix[r][c]=v is good
+					s.matrix[r][c] = v
+					clone := new(Sudoku)
+					clone.LoadArray(s.matrix)
+					if err := clone.Solve(0); err == nil {
+						// "backfill"
+						s.LoadArray(clone.matrix)
+						// TODO: getsteps
+						return true, r, c, v, "3" // TODO and so on...
+					}
+					s.matrix[r][c] = 0 // did not work, try something else
 				}
 			}
 		}

@@ -19,7 +19,7 @@ func main() {
 	fmt.Print(in)
 
 	in.SetCallback(progress)
-	if err := in.Solve(); err != nil {
+	if err := in.Solve(0); err != nil {
 		fmt.Println(err)
 	}
 }
