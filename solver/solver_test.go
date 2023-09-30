@@ -463,3 +463,26 @@ func TestInputSanity(t *testing.T) {
 		t.Fatalf("duplicate values are accepted on input (block)")
 	}
 }
+
+func TestUnsolvable(t *testing.T) {
+	in := new(Sudoku)
+
+	err := in.LoadString(`
++---+---+---+
+|1  |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+|   |   |   |
+|   |   |   |
+|   |   |   |
++---+---+---+
+`)
+	if err != nil {
+		t.Fatalf("solved and unsolvable puzzle?")
+	}
+}
