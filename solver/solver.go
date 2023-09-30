@@ -25,7 +25,7 @@ const (
 )
 
 // @return: is it solved?
-func (s *Sudoku) Solve() bool {
+func (s *Sudoku) Solve() (err error) {
 	step := 0
 	for !s.isDone() {
 		step++
@@ -35,6 +35,9 @@ func (s *Sudoku) Solve() bool {
 			if s.callback != nil {
 				s.callback(s, step, r, c, val, strat)
 			}
+			if err := s.isSane(); err != nil {
+				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
+			}
 			continue
 		}
 
@@ -43,12 +46,15 @@ func (s *Sudoku) Solve() bool {
 			if s.callback != nil {
 				s.callback(s, step, r, c, val, strat)
 			}
+			if err := s.isSane(); err != nil {
+				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
+			}
 			continue
 		}
 
-		return false
+		return fmt.Errorf("not solveable")
 	}
-	return true
+	return nil
 }
 
 func (s *Sudoku) String() string {
@@ -110,6 +116,23 @@ func (s *Sudoku) LoadString(input string) (err error) {
 		i++
 	}
 
+	return s.isSane()
+}
+
+// LoadArray initialises from another [][]int matrix
+// input should be (at least) 9x9
+func (s *Sudoku) LoadArray(input [][]int) (err error) {
+	if len(input) < 9 {
+		return fmt.Errorf("not enough rows (%d)", len(input))
+	}
+	for r := 0; r < 9; r++ {
+		if len(input[r]) < 9 {
+			return fmt.Errorf("not enough cols (%d) in row %d", len(input[r]), r)
+		}
+		for c := 0; c < 9; c++ {
+			s.matrix[r][c] = input[r][c]
+		}
+	}
 	return s.isSane()
 }
 

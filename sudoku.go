@@ -19,8 +19,8 @@ func main() {
 	fmt.Print(in)
 
 	in.SetCallback(progress)
-	if !in.Solve() {
-		fmt.Println("unsolvable!")
+	if err := in.Solve(); err != nil {
+		fmt.Println(err)
 	}
 }
 
