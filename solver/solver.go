@@ -288,10 +288,10 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					// check if *all other* rows/cols in the same row/col group have this v
 					// also, if *other* rows/cols cannot have it because in this block they are filled
 					// if yes for all => fill it in!
-					if (r1has || (s.isFilled(r1, c) && s.isFilled(r2, c))) &&
-						(r2has || (s.isFilled(r1, c) && s.isFilled(r2, c))) &&
-						(c1has || (s.isFilled(r, c1) && s.isFilled(r, c2))) &&
-						(c2has || (s.isFilled(r, c1) && s.isFilled(r, c2))) {
+					if (r1has || (s.isFilled(r1, c) && s.isFilled(r1, c1) && s.isFilled(r1, c2))) &&
+						(r2has || (s.isFilled(r2, c) && s.isFilled(r2, c1) && s.isFilled(r2, c2))) &&
+						(c1has || (s.isFilled(r, c1) && s.isFilled(r1, c1) && s.isFilled(r2, c1))) &&
+						(c2has || (s.isFilled(r, c2) && s.isFilled(r1, c2) && s.isFilled(r2, c2))) {
 						s.matrix[r][c] = v
 						return true, r, c, v, "2b"
 					}
