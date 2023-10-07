@@ -44,7 +44,7 @@ func TestSolverLevel1(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 1a:\n%s", s)
+		t.Fatalf("incorrect solution for case 1a:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -83,7 +83,7 @@ func TestSolverLevel1(t *testing.T) {
 |9  |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 1b:\n%s", s)
+		t.Fatalf("incorrect solution for case 1b:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -122,7 +122,7 @@ func TestSolverLevel1(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 1c:\n%s", s)
+		t.Fatalf("incorrect solution for case 1c:\n%s", s)
 	}
 }
 
@@ -165,7 +165,7 @@ func TestSolverLevel2(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2a:\n%s", s)
+		t.Fatalf("incorrect solution for case 2a:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -204,7 +204,7 @@ func TestSolverLevel2(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2b:\n%s", s)
+		t.Fatalf("incorrect solution for case 2b:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -243,7 +243,7 @@ func TestSolverLevel2(t *testing.T) {
 |   |   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2c1:\n%s", s)
+		t.Fatalf("incorrect solution for case 2c1:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -282,7 +282,7 @@ func TestSolverLevel2(t *testing.T) {
 | 61|   |   |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2c2:\n%s", s)
+		t.Fatalf("incorrect solution for case 2c2:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -321,7 +321,7 @@ func TestSolverLevel2(t *testing.T) {
 |123|   |456|
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2d1:\n%s", s)
+		t.Fatalf("incorrect solution for case 2d1:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -360,7 +360,7 @@ func TestSolverLevel2(t *testing.T) {
 |12 |   |456|
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2d2:\n%s", s)
+		t.Fatalf("incorrect solution for case 2d2:\n%s", s)
 	}
 
 	err = in.LoadString(`
@@ -399,7 +399,7 @@ func TestSolverLevel2(t *testing.T) {
 |12 |   |45 |
 +---+---+---+
 ` {
-		t.Fatalf("incorrect soution for case 2d3:\n%s", s)
+		t.Fatalf("incorrect solution for case 2d3:\n%s", s)
 	}
 }
 
