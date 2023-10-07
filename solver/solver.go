@@ -101,10 +101,11 @@ Input can be:
   - a pretty-printed table
 */
 func (s *Sudoku) LoadString(input string) (err error) {
-	i := 0
+	var matrix [9][9]int
+	r := 0
 	lineno := 0
 	lines := strings.Split(input, "\n")
-	for i < 9 {
+	for r < 9 {
 		line := lines[lineno]
 		line = strings.Replace(line, ",", "", -1)
 		line = strings.Replace(line, "-", "", -1)
@@ -118,24 +119,28 @@ func (s *Sudoku) LoadString(input string) (err error) {
 			continue
 		}
 
-		for j := 0; j < 9; j++ {
-			v := int(line[j]) - int('0')
+		for c := 0; c < 9; c++ {
+			v := int(line[c]) - int('0')
 			if v < 0 || v > 9 {
-				return fmt.Errorf("invalid input at %d %d", i, j)
+				return fmt.Errorf("invalid input at %d %d", r, c)
 			}
-			s.setValue(i, j, v)
+			matrix[r][c] = v
 		}
 
 		lineno++
-		i++
+		r++
 	}
 
+	if err := s.LoadArray(matrix); err != nil {
+		return err
+	}
 	return s.isSane()
 }
 
 // LoadArray initialises from another [][]int matrix
 // input should be (at least) 9x9
 func (s *Sudoku) LoadArray(input [9][9]int) (err error) {
+	s.init()
 	for r := 0; r < 9; r++ {
 		for c := 0; c < 9; c++ {
 			s.setValue(r, c, input[r][c])
@@ -144,6 +149,19 @@ func (s *Sudoku) LoadArray(input [9][9]int) (err error) {
 	return s.isSane()
 }
 
+func (s *Sudoku) init() {
+	s.complexity = 0
+	for i := 0; i <= 9; i++ {
+		s.occurences[i] = 0
+	}
+	for r := 0; r < 9; r++ {
+		for c := 0; c < 9; c++ {
+			s.matrix[r][c] = 0
+		}
+	}
+}
+
+// LoadFile loads from a file (!)
 func (s *Sudoku) LoadFile(readFile *os.File) (err error) {
 	scanner := bufio.NewScanner(readFile)
 	var in string
@@ -256,14 +274,10 @@ func (s *Sudoku) findLevel1() (success bool, r int, c int, val int, strat string
 
 func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string) {
 	// try to put v in all the free positions
-	for v := 1; v <= 9; v++ {
-		// if this v is done then skip it
-		if s.occurences[v] == 9 {
-			continue
-		}
+	for _, v := range orderedCandidates(s.occurences[:]) {
 		for r := 0; r < 9; r++ {
 			for c := 0; c < 9; c++ {
-				if s.matrix[r][c] == 0 &&
+				if !s.isFilled(r, c) &&
 					!s.hasAlready(Row, r, v) &&
 					!s.hasAlready(Col, c, v) &&
 					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
@@ -355,14 +369,14 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 
 // recursive: try to fill all values in all places, see if that is sane & solvable
 func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string) {
-	for v := 1; v <= 9; v++ {
-		// if this v is done then skip it
-		if s.occurences[v] == 9 {
-			continue
-		}
+	for _, v := range orderedCandidates(s.occurences[:]) {
 		for r := 0; r < 9; r++ {
 			for c := 0; c < 9; c++ {
-				if !s.isFilled(r, c) {
+				if !s.isFilled(r, c) &&
+					!s.hasAlready(Row, r, v) &&
+					!s.hasAlready(Col, c, v) &&
+					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
+
 					// assume matrix[r][c]=v is good
 					s.setValue(r, c, v)
 					clone := new(Sudoku)
@@ -371,7 +385,7 @@ func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string
 						// "backfill"
 						s.LoadArray(clone.matrix)
 						// TODO: getsteps
-						return true, r, c, v, "3" // TODO and so on...
+						return true, r, c, v, "3"
 					} else {
 						s.setValue(r, c, 0) // did not work, try something else
 					}
@@ -415,7 +429,23 @@ func (s *Sudoku) Complexity() int {
 	return s.complexity
 }
 
-// ////////////////////// utils
+////////////////////// utils
+
+// given a list of occurences, return an ordered list of candidates
+// the more we have froma value, the erlier it should be on the list
+// e.g. [X,9,9,9,0,6,5,4,3,2] -> [5,6,7,8,9,4]
+func orderedCandidates(in []int) []int {
+	res := make([]int, 0)
+	for o := 8; o >= 0; o-- {
+		for i := 1; i <= 9; i++ {
+			if in[i] == o {
+				res = append(res, i)
+			}
+		}
+	}
+	return res
+}
+
 func removeFromSlice(slice []int, remove int) []int {
 	for i := 0; i < len(slice); i++ {
 		if slice[i] == remove {
