@@ -403,6 +403,49 @@ func TestSolverLevel2(t *testing.T) {
 	}
 }
 
+func TestSolverLevel3(t *testing.T) {
+	in := new(Sudoku)
+
+	err := in.LoadString(`
++---+---+---+
+| 26| 1 | 8 |
+|   |624|   |
+|  3| 5 |2 6|
++---+---+---+
+|345|197|862|
+|961|   |4  |
+|872|465|913|
++---+---+---+
+|23 |5 1|69 |
+|6  |   |  8|
+| 5 | 76| 2 |
++---+---+---+
+`)
+	if err != nil {
+		panic(err)
+	}
+	_ = in.Solve(1)
+
+	s := "\n" + in.String()
+	if s != `
++---+---+---+
+|426|713|589|
+|589|624|731|
+|713|859|246|
++---+---+---+
+|345|197|862|
+|961|238|475|
+|872|465|913|
++---+---+---+
+|234|581|697|
+|697|342|158|
+|158|976|324|
++---+---+---+
+` {
+		t.Fatalf("incorrect solution for case 3:\n%s", s)
+	}
+}
+
 func TestInputSanity(t *testing.T) {
 	in := new(Sudoku)
 
