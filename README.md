@@ -1,7 +1,6 @@
 # Sudoku Solver in Go
 
-A command line tool to solve sudokus. It cannot solve everything just yet,
-but it does a decent job on not very complex puzzles.
+A command line tool to solve sudokus.
 
 The package part (`solver/`) may be usable separately as well.
 
