@@ -4,9 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 type Sudoku struct {
