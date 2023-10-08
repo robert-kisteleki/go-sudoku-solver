@@ -19,53 +19,49 @@ type Sudoku struct {
 type dimension int
 
 const (
-	Row   dimension = 0
-	Col   dimension = 1
-	Block dimension = 2
+	row   dimension = 0
+	col   dimension = 1
+	block dimension = 2
 )
 
-// Solve check if the sudoku is solvable
+// Solve the sudoku
 // maxsteps limits how many steps should be done (0==all)
-// @return: is it solved?
+// @return: is it solved? err==nil means yes
 func (s *Sudoku) Solve(maxteps int) (err error) {
+	solveLevelFunc := func(level int) func() (success bool, r int, c int, val int, strat string) {
+		switch level {
+		case 1:
+			return s.findLevel1
+		case 2:
+			return s.findLevel2
+		case 3:
+			return s.findLevel3
+		}
+		return nil
+	}
+
 	step := 0
 	for !s.isDone() && (maxteps <= 0 || step < maxteps) {
 		step++
 
-		if success, r, c, val, strat := s.findLevel1(); success {
-			s.setComplexity(1)
-			if s.callback != nil {
-				s.callback(s, step, r, c, val, strat)
+		found := false
+		for level := 1; level <= 3; level++ {
+			if success, r, c, val, strat := solveLevelFunc(level)(); success {
+				s.setComplexity(level)
+				if s.callback != nil {
+					s.callback(s, step, r, c, val, strat)
+				}
+				if err := s.isSane(); err != nil {
+					return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
+				}
+				found = true
+				break
 			}
-			if err := s.isSane(); err != nil {
-				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
-			}
-			continue
 		}
 
-		if success, r, c, val, strat := s.findLevel2(); success {
-			s.setComplexity(2)
-			if s.callback != nil {
-				s.callback(s, step, r, c, val, strat)
-			}
-			if err := s.isSane(); err != nil {
-				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
-			}
-			continue
+		if !found {
+			return fmt.Errorf("not solvable")
 		}
-
-		if success, r, c, val, strat := s.findLevel3(); success {
-			s.setComplexity(3)
-			if s.callback != nil {
-				s.callback(s, step, r, c, val, strat)
-			}
-			if err := s.isSane(); err != nil {
-				return fmt.Errorf("oops, after strat %s solution is not sane: %v", strat, err)
-			}
-			continue
-		}
-
-		return fmt.Errorf("not solvable")
 	}
 
 	return nil
@@ -175,6 +171,7 @@ func (s *Sudoku) LoadFile(readFile *os.File) (err error) {
 	return s.LoadString(in)
 }
 
+// set a cell value and update statistics
 func (s *Sudoku) setValue(r int, c int, v int) {
 	if v == 0 {
 		s.occurences[s.matrix[r][c]]--
@@ -184,6 +181,7 @@ func (s *Sudoku) setValue(r int, c int, v int) {
 	s.matrix[r][c] = v
 }
 
+// chek if current values are possible or not
 func (s *Sudoku) isSane() (err error) {
 	// check if values are [0..9]
 	for r := 0; r < 9; r++ {
@@ -197,7 +195,7 @@ func (s *Sudoku) isSane() (err error) {
 	// check how many [1..0] we have per R/C/B
 	for r := 0; r < 9; r++ {
 		for v := 1; v <= 9; v++ {
-			n := s.count(Row, r, v)
+			n := s.count(row, r, v)
 			if n > 1 {
 				return fmt.Errorf("row %d contains %d appearances of %d", r+1, n, v)
 			}
@@ -205,7 +203,7 @@ func (s *Sudoku) isSane() (err error) {
 	}
 	for c := 0; c < 9; c++ {
 		for v := 1; v <= 9; v++ {
-			n := s.count(Col, c, v)
+			n := s.count(col, c, v)
 			if n > 1 {
 				return fmt.Errorf("col %d contains %d appearances of %d", c+1, n, v)
 			}
@@ -213,7 +211,7 @@ func (s *Sudoku) isSane() (err error) {
 	}
 	for b := 0; b < 9; b++ {
 		for v := 1; v <= 9; v++ {
-			n := s.count(Block, b, v)
+			n := s.count(block, b, v)
 			if n > 1 {
 				return fmt.Errorf("block %d contains %d appearances of %d", b+1, n, v)
 			}
@@ -232,9 +230,10 @@ func (s *Sudoku) isDone() bool {
 			}
 		}
 	}
-	return n == 0
+	return n == 0 && s.isSane() == nil
 }
 
+// check for complexity 1
 // 8 in a row, col or block => fill the missing one
 func (s *Sudoku) findLevel1() (success bool, r int, c int, val int, strat string) {
 	fillMissingItem := func(dim dimension, where int) (success bool, r int, c int, val int) {
@@ -259,38 +258,36 @@ func (s *Sudoku) findLevel1() (success bool, r int, c int, val int, strat string
 	}
 
 	for i := 0; i < 9; i++ {
-		if success, r, c, val := fillMissingItem(Row, i); success {
-			return true, r, c, val, "1"
-		}
-		if success, r, c, val := fillMissingItem(Col, i); success {
-			return true, r, c, val, "1"
-		}
-		if success, r, c, val := fillMissingItem(Block, i); success {
-			return true, r, c, val, "1"
+		for check := range []dimension{row, col, block} {
+			if success, r, c, val := fillMissingItem(dimension(check), i); success {
+				return true, r, c, val, "1"
+			}
 		}
 	}
 	return false, 9, 9, 9, ""
 }
 
+// check for complexity 2
+// check for cases where there can be only one value in a cell
 func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string) {
 	// try to put v in all the free positions
 	for _, v := range orderedCandidates(s.occurences[:]) {
 		for r := 0; r < 9; r++ {
 			for c := 0; c < 9; c++ {
 				if !s.isFilled(r, c) &&
-					!s.hasAlready(Row, r, v) &&
-					!s.hasAlready(Col, c, v) &&
-					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
+					!s.hasAlready(row, r, v) &&
+					!s.hasAlready(col, c, v) &&
+					!s.hasAlready(block, translateRCToBlock(r, c), v) {
 
 					r1 := 3*(r/3) + (r+1)%3 // first other row
 					r2 := 3*(r/3) + (r+2)%3 // second other row
 					c1 := 3*(c/3) + (c+1)%3 // first other column
 					c2 := 3*(c/3) + (c+2)%3 // second other column
 
-					r1has := s.hasAlready(Row, r1, v)
-					r2has := s.hasAlready(Row, r2, v)
-					c1has := s.hasAlready(Col, c1, v)
-					c2has := s.hasAlready(Col, c2, v)
+					r1has := s.hasAlready(row, r1, v)
+					r2has := s.hasAlready(row, r2, v)
+					c1has := s.hasAlready(col, c1, v)
+					c2has := s.hasAlready(col, c2, v)
 
 					// check if *all other* rows/cols in the same row/col group have this v
 					// if yes for all => fill it in!
@@ -332,8 +329,8 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					for i := 0; i < 9 && !otherCs; i++ {
 						if i == c || // same cell, skip
 							s.isFilled(r, i) || // cell is filled already
-							s.hasAlready(Block, translateRCToBlock(r, i), v) || // if the block already has this v
-							s.hasAlready(Col, i, v) { // some other row in this col has this v already
+							s.hasAlready(block, translateRCToBlock(r, i), v) || // if the block already has this v
+							s.hasAlready(col, i, v) { // some other row in this col has this v already
 							continue
 						}
 						otherCs = true
@@ -349,8 +346,8 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 					for i := 0; i < 9 && !otherRs; i++ {
 						if i == r || //  same cell, skip
 							s.isFilled(i, c) || // cell is filled already
-							s.hasAlready(Block, translateRCToBlock(i, c), v) || // if the block already has this v
-							s.hasAlready(Row, i, v) { // some other col in this row has this v already
+							s.hasAlready(block, translateRCToBlock(i, c), v) || // if the block already has this v
+							s.hasAlready(row, i, v) { // some other col in this row has this v already
 							continue
 						}
 						otherRs = true
@@ -367,15 +364,16 @@ func (s *Sudoku) findLevel2() (success bool, r int, c int, val int, strat string
 	return false, 9, 9, 9, ""
 }
 
+// check for complexity 3
 // recursive: try to fill all values in all places, see if that is sane & solvable
 func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string) {
 	for _, v := range orderedCandidates(s.occurences[:]) {
 		for r := 0; r < 9; r++ {
 			for c := 0; c < 9; c++ {
 				if !s.isFilled(r, c) &&
-					!s.hasAlready(Row, r, v) &&
-					!s.hasAlready(Col, c, v) &&
-					!s.hasAlready(Block, translateRCToBlock(r, c), v) {
+					!s.hasAlready(row, r, v) &&
+					!s.hasAlready(col, c, v) &&
+					!s.hasAlready(block, translateRCToBlock(r, c), v) {
 
 					// assume matrix[r][c]=v is good
 					s.setValue(r, c, v)
@@ -396,6 +394,7 @@ func (s *Sudoku) findLevel3() (success bool, r int, c int, val int, strat string
 	return false, 9, 9, 9, ""
 }
 
+// count how many cells have this value in a row/col/block
 func (s *Sudoku) count(dim dimension, where int, val int) (n int) {
 	n = 0
 	for i := 0; i < 9; i++ {
@@ -407,10 +406,12 @@ func (s *Sudoku) count(dim dimension, where int, val int) (n int) {
 	return n
 }
 
+// does this row/col/block contain this value already?
 func (s *Sudoku) hasAlready(dim dimension, where int, val int) bool {
 	return s.count(dim, where, val) >= 1
 }
 
+// check if a cell has a value
 func (s *Sudoku) isFilled(r, c int) bool {
 	return s.matrix[r][c] != 0
 }
@@ -446,6 +447,7 @@ func orderedCandidates(in []int) []int {
 	return res
 }
 
+// remove a particular element from a slice and return the rest
 func removeFromSlice(slice []int, remove int) []int {
 	for i := 0; i < len(slice); i++ {
 		if slice[i] == remove {
@@ -458,16 +460,17 @@ func removeFromSlice(slice []int, remove int) []int {
 // Given a dimension (row, col, block), translate the index into the row/col coordinates of that R/C/B
 func translateIndextoRC(dim dimension, where int, index int) (r, c int) {
 	switch dim {
-	case Row:
+	case row:
 		return where, index
-	case Col:
+	case col:
 		return index, where
-	case Block:
+	case block:
 		return index/3 + 3*(where/3), index%3 + 3*(where%3)
 	}
 	return 9, 9 // this will blow up
 }
 
+// given a row+col, return the correspoding block number
 func translateRCToBlock(r int, c int) int {
 	return (r/3)*3 + c/3
 }
