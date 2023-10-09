@@ -18,13 +18,12 @@ func main() {
 	fmt.Println("Input:")
 	fmt.Print(in)
 
-	in.SetCallback(progress)
 	if err := in.Solve(0); err != nil {
 		fmt.Println(err)
 	}
-}
 
-func progress(s *solver.Sudoku, step int, r int, c int, val int, strat string) {
-	fmt.Printf("Step %d, R:%d, C:%d, Val:%d, Strategy:%s\n", step, r, c, val, strat)
-	fmt.Print(s)
+	for i, s := range *in.Steps() {
+		fmt.Printf("Step %d, R:%d, C:%d, Value:%d, Strategy:%s\n", i+1, s.R+1, s.C+1, s.Value, s.Strategy)
+		fmt.Print(s.BoardAfter.String())
+	}
 }
