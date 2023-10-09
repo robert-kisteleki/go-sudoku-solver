@@ -47,6 +47,7 @@ func TestSolverLevel1(t *testing.T) {
 		t.Fatalf("incorrect solution for case 1a:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
@@ -86,6 +87,7 @@ func TestSolverLevel1(t *testing.T) {
 		t.Fatalf("incorrect solution for case 1b:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |123|   |   |
@@ -168,6 +170,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2a:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
@@ -207,6 +210,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2b:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
@@ -246,6 +250,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2c1:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
@@ -285,6 +290,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2c2:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |   |   |   |
@@ -324,6 +330,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2d1:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |   |   |   |
@@ -363,6 +370,7 @@ func TestSolverLevel2(t *testing.T) {
 		t.Fatalf("incorrect solution for case 2d2:\n%s", s)
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |   |   |   |
@@ -468,6 +476,7 @@ func TestInputSanity(t *testing.T) {
 		t.Fatalf("duplicate values are accepted on input (row)")
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
@@ -487,6 +496,7 @@ func TestInputSanity(t *testing.T) {
 		t.Fatalf("duplicate values are accepted on input (col)")
 	}
 
+	in = new(Sudoku)
 	err = in.LoadString(`
 +---+---+---+
 |1  |   |   |
